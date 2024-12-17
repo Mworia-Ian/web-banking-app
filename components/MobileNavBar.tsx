@@ -42,7 +42,7 @@ const MobileNavBar = ({ user }: MobileNavProps) => {
               alt="Krypt Logo"
             />
             <h1 className="text-26 font-ibm-plex-serif font-bold text-black-1">
-              Krypt
+              Horizon
             </h1>
           </Link>
           <div className="mobilenav-sheet">
@@ -87,7 +87,7 @@ const MobileNavBar = ({ user }: MobileNavProps) => {
               </nav>
             </SheetClose>
 
-            <Footer user={user} />
+            <Footer user={user} type = 'mobile' />
           </div>
         </SheetContent>
       </Sheet>
