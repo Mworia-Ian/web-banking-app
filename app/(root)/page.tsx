@@ -1,23 +1,58 @@
 import HeaderBox from "@/components/HeaderBox";
+import RecentTransactions from "@/components/RecentTransactions";
 import RightSideBar from "@/components/RightSideBar";
 import TotalBalanceBox from "@/components/TotalBalanceBox";
 import { getAccount, getAccounts } from "@/lib/actions/bank.actions";
 import { getLoggedInUser } from "@/lib/actions/user.actions";
+import { redirect } from "next/navigation";
 import React from "react";
 
 const Home = async ({searchParams: {id, page}}: SearchParamProps) => {
 
+  const currentPage = Number(page as string) || 1
+
   const loggedIn = await getLoggedInUser()
+
+  if (!loggedIn) {
+    redirect('/sign-in')
+  }
 
   const accounts = await getAccounts({
     userId: loggedIn.$id
   })
 
-  if (!accounts) return
+  // if (!accounts) return
+  if (!accounts || !accounts.data?.length) {
+    return (
+      <section className="home">
+        <div className="home-content">
+          <header className="home-header">
+            <HeaderBox 
+              type="greeting"
+              title="Welcome"
+              user={loggedIn.firstName || "Guest"}
+              subtext="No linked bank accounts found. Please link an account to get started."
+            />
+          </header>
+        </div>
+      </section>
+    )
+  }
 
-  const appwriteItemId = ( id as string ) || accounts?.data[0]?.appwriteItemId 
+  const accountsData = accounts.data
 
-  const account = await getAccount ({appwriteItemId})
+  const appwriteItemId = ( id as string ) || accountsData[0]?.appwriteItemId 
+
+  let accountDetails = null
+
+  if (appwriteItemId) {
+    accountDetails = await getAccount({appwriteItemId})
+  }
+
+
+  // const account = await getAccount ({appwriteItemId})
+
+
 
   return (
     <section className="home">
@@ -32,18 +67,23 @@ const Home = async ({searchParams: {id, page}}: SearchParamProps) => {
           />
 
           <TotalBalanceBox
-            accounts={accounts?.data}
-            totalBanks ={accounts?.totalBanks}
-            totalCurrentBalance = {accounts?.totalCurrentBalance}
+            accounts={accountsData}
+            totalBanks ={accounts.totalBanks}
+            totalCurrentBalance = {accounts.totalCurrentBalance}
           />
         </header>
-        RECENT TRANSACTIONS
+        <RecentTransactions 
+          accounts = {accountsData}
+          transactions = {accounts?.transactions}
+          appwriteItemId = {appwriteItemId}
+          page = {currentPage}
+        />
       </div>
 
       <RightSideBar 
         user={loggedIn}
-        transactions={accounts?.transactions}
-        banks={accounts?.data?.slice(0,2)}
+        transactions={accountDetails?.transactions || []}
+        banks={accountsData?.slice(0,2)}
       />
     </section>
   );

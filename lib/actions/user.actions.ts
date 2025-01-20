@@ -24,7 +24,7 @@ export const getUserInfo = async ({ userId}: getUserInfoProps) => {
       USER_COLLECTION_ID!,
       [Query.equal('userId', [userId])]
     )
-    return parseStringify(user.documents);
+    return parseStringify(user.documents[0]);
   } catch (error) {
     console.log(error)
   }
@@ -164,7 +164,7 @@ export const createBankAccount = async ({
   accountId,
   accessToken,
   fundingSourceUrl,
-  sharableId,
+  shareableId,
 }: createBankAccountProps) => {
   try{
 
@@ -180,7 +180,7 @@ export const createBankAccount = async ({
             accountId,
             accessToken,
             fundingSourceUrl,
-            sharableId,
+            shareableId,
           }
     )
 
@@ -231,14 +231,14 @@ export const exchangePublicToken = async ({
     // If funding source URL is not created, throw an error
     if (!fundingSourceUrl) throw Error
 
-    // Create a bank account using the user ID, item ID, account ID, access token, funding source URL, and sharable ID
+    // Create a bank account using the user ID, item ID, account ID, access token, funding source URL, and shareable ID
     await createBankAccount({
       userId: user.$id,
       bankId: itemId,
       accountId: accountData.account_id,
       accessToken,
       fundingSourceUrl,
-      sharableId: encryptId(accountData.account_id),
+      shareableId: encryptId(accountData.account_id),
     });
 
     // revalidate the path to reflect the changes
@@ -278,7 +278,7 @@ export const getBank = async ({documentId}: getBankProps) => {
       BANK_COLLECTION_ID!,
       [Query.equal('$id', [documentId])]
     )
-    return parseStringify(bank.documents);
+    return parseStringify(bank.documents[0]);
   } catch (error) {
     console.log(error)
   }
